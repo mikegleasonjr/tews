@@ -13,8 +13,8 @@ import java.net.URLConnection;
 
 import static com.mikecouturier.tews.builders.WebServerBuilder.aWebServer;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
 public class WebServerTest {
     @Test
@@ -89,7 +89,7 @@ public class WebServerTest {
     }
 
     private void thenTheServerResponds() {
-        assertThat(responded, is(true));
+        assertThat( responded, is( true ) );
     }
 
     private void thenTheServerDoesNotRespond() {
