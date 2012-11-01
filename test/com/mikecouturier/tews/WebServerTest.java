@@ -1,6 +1,6 @@
 package com.mikecouturier.tews;
 
-import com.mikecouturier.tews.utils.ServerBuilder;
+import com.mikecouturier.tews.builders.WebServerBuilder;
 import org.junit.After;
 import org.junit.Test;
 
@@ -11,15 +11,15 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 
-import static com.mikecouturier.tews.utils.ServerBuilder.aServer;
+import static com.mikecouturier.tews.builders.WebServerBuilder.aWebServer;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
-public class ServerTest {
+public class WebServerTest {
     @Test
     public void aServerRespondsToRequests() throws Exception {
-        given(aServer().onPort(8123));
+        given(aWebServer().onPort(8123));
 
         whenRequestingPath("/");
 
@@ -28,7 +28,7 @@ public class ServerTest {
 
     @Test
     public void aServerCanBeStopped() throws Exception {
-        given(aServer().onPort(8123));
+        given(aWebServer().onPort(8123));
 
         whenStoppingTheServer();
         whenRequestingPath("/");
@@ -38,7 +38,7 @@ public class ServerTest {
 
     @Test
     public void aServerRespondsWithASpecificOutput() throws Exception {
-        given(aServer().onPort(8123).whichResponds("Hello World!"));
+        given(aWebServer().onPort(8123).whichResponds("Hello World!"));
 
         whenRequestingPath("/");
 
@@ -47,21 +47,22 @@ public class ServerTest {
 
     @After
     public void tearDown() throws Exception {
-        if (server != null) {
-            server.stop();
+        if (webServer != null) {
+            webServer.stop();
         }
-        server = null;
+        webServer = null;
         responded = false;
         output = null;
     }
 
-    private void given(ServerBuilder serverBuilder) throws Exception {
-        server = serverBuilder.build();
-        server.start();
+    private void given(WebServerBuilder webServerBuilder) throws Exception {
+        webServer = webServerBuilder.build();
+        webServer.start();
     }
 
     private void whenRequestingPath(String path) throws IOException {
-        URL url = new URL(String.format("http://localhost:%d%s", server.getPort(), path));
+        // todo, port + method way too long
+        URL url = new URL(String.format("http://localhost:%d%s", 8123, path));
         URLConnection connection = url.openConnection();
         BufferedReader reader;
 
@@ -84,7 +85,7 @@ public class ServerTest {
     }
 
     private void whenStoppingTheServer() throws Exception {
-        server.stop();
+        webServer.stop();
     }
 
     private void thenTheServerResponds() {
@@ -99,7 +100,7 @@ public class ServerTest {
         assertThat(output.toString(), equalTo(expectedOutput));
     }
 
-    private Server server = null;
+    private WebServer webServer = null;
     private boolean responded = false;
     private StringBuilder output = null;
 }
