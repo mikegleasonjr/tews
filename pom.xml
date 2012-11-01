@@ -33,4 +33,13 @@
         </dependency>
     </dependencies>
 
+    <distributionManagement>
+        <snapshotRepository>
+            <uniqueVersion>true</uniqueVersion>
+            <id>cloudbees-snapshots</id>
+            <url>https://repository-ericminio.forge.cloudbees.com/snapshot/</url>
+            <layout>default</layout>
+        </snapshotRepository>
+    </distributionManagement>
+
 </project>
