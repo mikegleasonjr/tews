@@ -1,48 +1,40 @@
 package com.mikecouturier.tews;
 
+import com.jayway.restassured.RestAssured;
 import com.mikecouturier.tews.builders.WebServerBuilder;
+import org.apache.http.conn.HttpHostConnectException;
 import org.junit.After;
 import org.junit.Test;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-
+import static com.jayway.restassured.RestAssured.expect;
+import static com.jayway.restassured.RestAssured.get;
+import static com.jayway.restassured.RestAssured.given;
 import static com.mikecouturier.tews.builders.WebServerBuilder.aWebServer;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 
 public class WebServerTest {
     @Test
-    public void aServerRespondsToRequests() throws Exception {
-        given(aWebServer().onPort(8123));
+    public void theWebServerStartsByDefaultOnPort8080() throws Exception {
+        use(aWebServer());
+        get("/");
+    }
 
-        whenRequestingPath("/");
-
-        thenTheServerResponds();
+    @Test(expected = HttpHostConnectException.class)
+    public void theWebServerCanBeStopped() throws Exception {
+        use(aWebServer()).stop();
+        get("/");
     }
 
     @Test
-    public void aServerCanBeStopped() throws Exception {
-        given(aWebServer().onPort(8123));
-
-        whenStoppingTheServer();
-        whenRequestingPath("/");
-
-        thenTheServerDoesNotRespond();
+    public void theWebServerCanBeStartedOnASpecificPort() throws Exception {
+        use(aWebServer().onPort(8081));
+        given().port(8081).get("/");
     }
 
     @Test
-    public void aServerRespondsWithASpecificOutput() throws Exception {
-        given(aWebServer().onPort(8123).whichResponds("Hello World!"));
-
-        whenRequestingPath("/");
-
-        thenTheServerRespondsWith("Hello World!");
+    public void theWebServerReturnsNothingByDefault() throws Exception {
+        use(aWebServer());
+        expect().statusCode(404).when().get("/");
     }
 
     @After
@@ -51,56 +43,13 @@ public class WebServerTest {
             webServer.stop();
         }
         webServer = null;
-        responded = false;
-        output = null;
     }
 
-    private void given(WebServerBuilder webServerBuilder) throws Exception {
+    private WebServer use(WebServerBuilder webServerBuilder) throws Exception {
         webServer = webServerBuilder.build();
         webServer.start();
-    }
-
-    private void whenRequestingPath(String path) throws IOException {
-        // todo, port + method way too long
-        URL url = new URL(String.format("http://localhost:%d%s", 8123, path));
-        URLConnection connection = url.openConnection();
-        BufferedReader reader;
-
-        try {
-            InputStream inputStream = connection.getInputStream();
-            reader = new BufferedReader(new InputStreamReader(inputStream));
-            output = new StringBuilder();
-
-            String inputLine;
-            while ((inputLine = reader.readLine()) != null) {
-                output.append(inputLine);
-            }
-
-            reader.close();
-            responded = true;
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-
-    }
-
-    private void whenStoppingTheServer() throws Exception {
-        webServer.stop();
-    }
-
-    private void thenTheServerResponds() {
-        assertThat( responded, is( true ) );
-    }
-
-    private void thenTheServerDoesNotRespond() {
-        assertThat(responded, is(false));
-    }
-
-    private void thenTheServerRespondsWith(String expectedOutput) {
-        assertThat(output.toString(), equalTo(expectedOutput));
+        return webServer;
     }
 
     private WebServer webServer = null;
-    private boolean responded = false;
-    private StringBuilder output = null;
 }

@@ -3,8 +3,7 @@ package com.mikecouturier.tews.builders;
 import com.mikecouturier.tews.WebServer;
 
 public class WebServerBuilder {
-    private int port = 8080;
-    private String output = null;
+    private int port = -1;
 
     public  static WebServerBuilder aWebServer() {
         return new WebServerBuilder();
@@ -16,15 +15,12 @@ public class WebServerBuilder {
     }
 
     public WebServer build() {
-        WebServer s = new WebServer(port);
+        WebServer s = new WebServer();
 
-        s.respondWith(output);
+        if (port != -1) {
+            s.setPort(port);
+        }
 
         return s;
-    }
-
-    public WebServerBuilder whichResponds(String output) {
-        this.output = output;
-        return this;
     }
 }
