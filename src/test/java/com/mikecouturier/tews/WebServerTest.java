@@ -27,8 +27,8 @@ public class WebServerTest {
 
     @Test
     public void theWebServerCanBeStartedOnASpecificPort() throws Exception {
-        use(aWebServer().onPort(8081));
-        given().port(8081).get("/");
+        use(aWebServer().onPort(8181));
+        given().port(8181).get("/");
     }
 
     @Test
