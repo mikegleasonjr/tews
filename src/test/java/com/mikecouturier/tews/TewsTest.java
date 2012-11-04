@@ -39,25 +39,25 @@ public class TewsTest {
 
     @Test
     public void stoppingAServerDoesNotAffectOtherInstances() throws Exception {
-        run(8081);
-        run(8082);
+        run(8181);
+        run(8182);
 
-        stop(8081);
+        stop(8181);
 
-        given().port(8082).get("/");
+        given().port(8182).get("/");
     }
 
     @Test(expected = HttpHostConnectException.class)
     public void allRunningServersCanBeStoppedAtOnce() throws Exception {
         run();
-        run(8081);
+        run(8181);
 
         stopAll();
 
         try {
             get("/");
         } catch(Exception e) {
-            given().port(8081).get("/");
+            given().port(8181).get("/");
         }
     }
 
