@@ -4,9 +4,7 @@ import org.apache.http.conn.HttpHostConnectException;
 import org.junit.After;
 import org.junit.Test;
 
-import static com.jayway.restassured.RestAssured.expect;
-import static com.jayway.restassured.RestAssured.get;
-import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.RestAssured.*;
 import static com.mikecouturier.tews.Tews.*;
 
 public class TewsTest {
@@ -65,6 +63,11 @@ public class TewsTest {
     public void aNotFoundStatusIsReturnedByDefault() throws Exception {
         run();
         expect().statusCode(404).get("/");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void stoppingAnUnknownServerThrows() throws Exception {
+        stop(8080);
     }
 
     @After

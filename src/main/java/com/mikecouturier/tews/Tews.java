@@ -25,7 +25,12 @@ public class Tews {
     }
 
     public static void stop(int port) throws Exception {
-        runningServers.remove(port).stop();
+       if (!runningServers.containsKey(port)) {
+          throw new IllegalArgumentException("No server running at port: " + port);
+
+       }
+
+       runningServers.remove(port).stop();
     }
 
     public static void stopAll() throws Exception {
