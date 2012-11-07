@@ -7,16 +7,19 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class Tews {
+    public static int DEFAULT_PORT = 8080;
     private static Map<Integer, Server> runningServers = new HashMap<Integer, Server>();
-    private static int DEFAULT_PORT = 8080;
 
-    public static void run() throws Exception {
-        run(DEFAULT_PORT);
+    public static void server() throws Exception {
+        server(DEFAULT_PORT);
     }
 
-    public static void run(int port) throws Exception {
+    public static void server(int port) throws Exception {
         Server s = new Server(port);
+
+        s.setHandler(new RequestHandler());
         s.start();
+
         runningServers.put(port, s);
     }
 
@@ -25,12 +28,17 @@ public class Tews {
     }
 
     public static void stop(int port) throws Exception {
-       if (!runningServers.containsKey(port)) {
-          throw new IllegalArgumentException("No server running at port: " + port);
+        if (!runningServers.containsKey(port)) {
+            throw new IllegalArgumentException("No server running at port: " + port);
+        }
 
-       }
+        Server s = runningServers.remove(port);
 
-       runningServers.remove(port).stop();
+        if (((RequestHandler)s.getHandler()).isCalled()) {
+            throw new AssertionError("Unexpected URL requested");
+        }
+
+        s.stop();
     }
 
     public static void stopAll() throws Exception {
