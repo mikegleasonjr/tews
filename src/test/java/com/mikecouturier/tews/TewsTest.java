@@ -3,9 +3,7 @@ package com.mikecouturier.tews;
 import static com.jayway.restassured.RestAssured.get;
 import static com.mikecouturier.tews.Tews.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.describedAs;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
 import com.jayway.restassured.RestAssured;
 import org.junit.After;
@@ -77,10 +75,23 @@ public class TewsTest {
     }
 
     @Test(expected = AssertionError.class)
-    public void aServerWithNoExpectationsShouldThrowAnAssertionWhenARequestIsMade() throws Exception {
+    public void aServerWithNoExpectationsShouldThrowAnAssertionWhenARequestIsMadeAndTheServerIsStopped() throws Exception {
         server();
         get("/");
         stop();
+    }
+
+    @Test
+    public void anAssertionThrownByARequestShouldContainThePathResponsibleForTheAssertion() throws Exception {
+        server();
+        get("/some-path");
+
+        try {
+            stop();
+        } catch (AssertionError e) {
+            assertThat(e.getMessage(), containsString("Unexpected request(s):"));
+            assertThat(e.getMessage(), containsString("/some-path"));
+        }
     }
 
     @After
