@@ -33,12 +33,12 @@ public class Tews {
         }
 
         Server s = runningServers.remove(port);
-
-        if (((RequestHandler)s.getHandler()).isCalled()) {
-            throw new AssertionError("Unexpected URL requested");
-        }
-
         s.stop();
+
+        RequestHandler handler = (RequestHandler) s.getHandler();
+        if (handler.isCalled()) {
+            throw new AssertionError(String.format("Unexpected request(s):\n%s", handler.getLastUrlRequested()));
+        }
     }
 
     public static void stopAll() throws Exception {
