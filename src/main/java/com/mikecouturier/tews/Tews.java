@@ -3,8 +3,11 @@ package com.mikecouturier.tews;
 import org.mortbay.jetty.Server;
 
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.Map;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 
 public class Tews {
     public static int DEFAULT_PORT = 8080;
@@ -17,7 +20,7 @@ public class Tews {
     public static void server(int port) throws Exception {
         Server s = new Server(port);
 
-        s.setHandler(new RequestHandler());
+        s.setHandler(new RequestInterceptor());
         s.start();
 
         runningServers.put(port, s);
@@ -35,18 +38,13 @@ public class Tews {
         Server s = runningServers.remove(port);
         s.stop();
 
-        RequestHandler handler = (RequestHandler) s.getHandler();
-        if (handler.isCalled()) {
-            throw new AssertionError(String.format("Unexpected request(s):\n%s", handler.getLastUrlRequested()));
-        }
+        RequestInterceptor interceptor = (RequestInterceptor)s.getHandler();
+        assertThat("unexpected requests made on server", interceptor.getLogs(), empty());
     }
 
     public static void stopAll() throws Exception {
-        Iterator<Map.Entry<Integer, Server>> it = runningServers.entrySet().iterator();
-
-        while (it.hasNext()) {
-            it.next().getValue().stop();
-            it.remove();
+        for (Integer port : new HashSet<Integer>(runningServers.keySet())) {
+            stop(port);
         }
     }
 }
