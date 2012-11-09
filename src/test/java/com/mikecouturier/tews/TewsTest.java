@@ -1,13 +1,13 @@
 package com.mikecouturier.tews;
 
+import org.junit.After;
+import org.junit.Test;
+
 import static com.jayway.restassured.RestAssured.get;
 import static com.mikecouturier.tews.Tews.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-
-import com.jayway.restassured.RestAssured;
-import org.junit.After;
-import org.junit.Test;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 
 public class TewsTest {
 
@@ -82,14 +82,27 @@ public class TewsTest {
     }
 
     @Test
-    public void anAssertionThrownByARequestShouldContainThePathResponsibleForTheAssertion() throws Exception {
+    public void anUnexpectedRequestShouldAssertWhenStoppingAServer() throws Exception {
         server();
         get("/some-path");
 
         try {
             stop();
+            throw new Exception("An assertion should have been thrown by unexpected requests");
         } catch (AssertionError e) {
-            assertThat(e.getMessage(), containsString("Unexpected request(s):"));
+            assertThat(e.getMessage(), containsString("/some-path"));
+        }
+    }
+
+    @Test
+    public void anUnexpectedRequestShouldAssertWhenStoppingAllServer() throws Exception {
+        server();
+        get("/some-path");
+
+        try {
+            stopAll();
+            throw new Exception("An assertion should have been thrown by unexpected requests");
+        } catch (AssertionError e) {
             assertThat(e.getMessage(), containsString("/some-path"));
         }
     }
@@ -114,7 +127,7 @@ public class TewsTest {
     expect("/test/2").once().with().header("cache-control", "no-cache").responding().body("ERROR").
     expect("/test/3").exactly(3).with().header("cache-control", "no-cache").responding().body("ERROR").
     expect("/test/4").twice().with().header("cache-control", "no-cache").responding().body("<title></title>").
-    expect("/test/4").once().whenClient().method(POST).header("accept", "text/html").responding().body("yo")
+    expect("/test/4").once().with().method(POST).header("accept", "text/html").responding().body("yo")
             .server(8123);
     */
 }

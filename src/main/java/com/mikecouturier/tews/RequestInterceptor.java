@@ -6,22 +6,18 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-public class RequestHandler extends AbstractHandler {
-    private boolean called = false;
-    private String lastUrlRequested;
+public class RequestInterceptor extends AbstractHandler {
+    private List<LoggedRequest> logs = new ArrayList<LoggedRequest>();
 
-    public boolean isCalled() {
-        return called;
-    }
-
-    public String getLastUrlRequested() {
-        return lastUrlRequested;
+    public List<LoggedRequest> getLogs() {
+        return logs;
     }
 
     @Override
     public void handle(String target, HttpServletRequest request, HttpServletResponse response, int dispatch) throws IOException, ServletException {
-        lastUrlRequested = request.getRequestURI();
-        called = true;
+        logs.add(new LoggedRequest(target));
     }
 }
