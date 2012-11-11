@@ -3,10 +3,9 @@ package com.mikecouturier.tews;
 import org.junit.After;
 import org.junit.Test;
 
-import static com.jayway.restassured.RestAssured.get;
+import static com.jayway.restassured.RestAssured.expect;
 import static com.mikecouturier.tews.Tews.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
 public class TewsTest {
@@ -65,46 +64,26 @@ public class TewsTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void stoppingAStoppedServerThrows() throws Exception {
+    public void stoppingANonRunningServerThrows() throws Exception {
         stop();
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void stoppingAStoppedServerOnCustomPortThrows() throws Exception {
+    public void stoppingANonRunningServerOnCustomPortThrows() throws Exception {
         stop(CUSTOM_PORT);
     }
 
-    @Test(expected = AssertionError.class)
-    public void aServerWithNoExpectationsShouldThrowAnAssertionWhenARequestIsMadeAndTheServerIsStopped() throws Exception {
+    @Test
+    public void aServerStatusCodeIs404ByDefault() throws Exception {
         server();
-        get("/");
-        stop();
+        expect().statusCode(404).when().get("/");
     }
 
     @Test
-    public void anUnexpectedRequestShouldAssertWhenStoppingAServer() throws Exception {
-        server();
-        get("/some-path");
-
-        try {
-            stop();
-            throw new Exception("An assertion should have been thrown by unexpected requests");
-        } catch (AssertionError e) {
-            assertThat(e.getMessage(), containsString("/some-path"));
-        }
-    }
-
-    @Test
-    public void anUnexpectedRequestShouldAssertWhenStoppingAllServer() throws Exception {
-        server();
-        get("/some-path");
-
-        try {
-            stopAll();
-            throw new Exception("An assertion should have been thrown by unexpected requests");
-        } catch (AssertionError e) {
-            assertThat(e.getMessage(), containsString("/some-path"));
-        }
+    public void definingAUrlReturnsCode200ByDefault() throws Exception {
+        serve("/").server();
+        expect().statusCode(200).when().get("/");
+        expect().statusCode(404).when().get("/anything-else");
     }
 
     @After
@@ -123,11 +102,11 @@ public class TewsTest {
     private int CUSTOM_PORT = 8082;
 
     /* example usage
-    expect("/test/1").with().header("cache-control", "no-cache").responding().body("ERROR").header("", "").code(300).
-    expect("/test/2").once().with().header("cache-control", "no-cache").responding().body("ERROR").
-    expect("/test/3").exactly(3).with().header("cache-control", "no-cache").responding().body("ERROR").
-    expect("/test/4").twice().with().header("cache-control", "no-cache").responding().body("<title></title>").
-    expect("/test/4").once().with().method(POST).header("accept", "text/html").responding().body("yo")
+    serve("/test/1").when().header("", "").responding().code(500).
+    serve("/test/2").once().when().header("", "").responding().body("ERROR").
+    serve("/test/3").exactly(3).when().header("", "").responding().body("ERROR").
+    serve("/test/4").twice().when().header("", "no-cache").responding().contentType("application/json").body("{ "test": 3 }").
+    serve("/test/4").once().when().method(POST).header("accept", "text/html").responding().body("yo")
             .server(8123);
     */
 }
