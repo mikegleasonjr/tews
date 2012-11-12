@@ -80,10 +80,17 @@ public class TewsTest {
     }
 
     @Test
-    public void definingAUrlReturnsCode200ByDefault() throws Exception {
+    public void servingAnUrlReturnsCode200() throws Exception {
         serve("/").server();
         expect().statusCode(200).when().get("/");
         expect().statusCode(404).when().get("/anything-else");
+    }
+
+    @Test
+    public void aServerCanServeMultipleUrls() throws Exception {
+        serve("/url/1").serve("/index.html").server();
+        expect().statusCode(200).when().get("/url/1");
+        expect().statusCode(200).when().get("/index.html");
     }
 
     @After
