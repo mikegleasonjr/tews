@@ -80,15 +80,22 @@ public class TewsTest {
     }
 
     @Test
-    public void servingAnUrlReturnsCode200() throws Exception {
+    public void servingAUrlReturnsCode200() throws Exception {
         serve("/").server();
         expect().statusCode(200).when().get("/");
+    }
+
+    @Test
+    public void servingTheRootDoesNotServeAnythingElse() throws Exception {
+        serve("/").server();
         expect().statusCode(404).when().get("/anything-else");
     }
+
 
     @Test
     public void aServerCanServeMultipleUrls() throws Exception {
         serve("/url/1").serve("/index.html").server();
+
         expect().statusCode(200).when().get("/url/1");
         expect().statusCode(200).when().get("/index.html");
     }
