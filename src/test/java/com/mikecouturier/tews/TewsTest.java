@@ -1,11 +1,13 @@
 package com.mikecouturier.tews;
 
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.expect;
 import static com.mikecouturier.tews.Tews.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 public class TewsTest {
@@ -91,13 +93,19 @@ public class TewsTest {
         expect().statusCode(404).when().get("/anything-else");
     }
 
-
     @Test
     public void aServerCanServeMultipleUrls() throws Exception {
         serve("/url/1").serve("/index.html").server();
-
         expect().statusCode(200).when().get("/url/1");
         expect().statusCode(200).when().get("/index.html");
+    }
+
+    @Test
+    @Ignore
+    public void aUrlCanServeData() throws Exception {
+        String data = "data";
+        serve("/url").responding().body(data).server();
+        expect().body(equalTo(data)).when().get("/url");
     }
 
     @After

@@ -1,25 +1,40 @@
 package com.mikecouturier.tews;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class PathSpecification {
-    private List<String> paths = new ArrayList<String>();
+    private String path;
+    private PathSpecification previous = null;
 
     public PathSpecification(String path) {
-        serve(path);
+        this.path = path;
+    }
+
+    public PathSpecification(String path, PathSpecification previous) {
+        this.path = path;
+        this.previous = previous;
     }
 
     public void server() throws Exception {
-        Servers.start(Tews.DEFAULT_PORT, paths);
+        Servers.start(Tews.DEFAULT_PORT, this);
     }
 
     public void server(int port) throws Exception {
-        Servers.start(port, paths);
+        Servers.start(port, this);
     }
 
     public PathSpecification serve(String path) {
-        paths.add(path);
-        return this;
+        return new PathSpecification(path, this);
+    }
+
+    public ResponseSpecification responding() {
+        return new ResponseSpecification(this);
+    }
+
+    public PathSpecification getPrevious() {
+        return previous;
+    }
+
+    @Override
+    public String toString() {
+        return path;
     }
 }
