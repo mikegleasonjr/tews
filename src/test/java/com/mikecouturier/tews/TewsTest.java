@@ -64,12 +64,12 @@ public class TewsTest {
         portAvailable(CUSTOM_PORT);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IllegalStateException.class)
     public void stoppingANonRunningServerThrows() throws Exception {
         stop();
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IllegalStateException.class)
     public void stoppingANonRunningServerOnCustomPortThrows() throws Exception {
         stop(CUSTOM_PORT);
     }
