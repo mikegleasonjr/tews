@@ -29,7 +29,7 @@ public class Servers {
 
     public static void stop(int port) throws Exception {
         if (!runningServers.containsKey(port)) {
-            throw new IllegalArgumentException("No server running at port: " + port);
+            throw new IllegalStateException("No server running at port: " + port);
         }
 
         org.mortbay.jetty.Server s = runningServers.remove(port);
