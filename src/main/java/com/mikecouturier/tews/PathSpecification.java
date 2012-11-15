@@ -1,8 +1,11 @@
 package com.mikecouturier.tews;
 
+// @todo, clean code
+
 public class PathSpecification {
     private String path;
     private ResponseSpecification responseSpecification;
+    private RequestSpecification requestSpecification;
     private PathSpecification previousPathSpecification = null;
 
     protected PathSpecification getPreviousPathSpecification() {
@@ -13,17 +16,23 @@ public class PathSpecification {
         return path;
     }
 
+    protected RequestSpecification getRequestSpecification() {
+        return requestSpecification;
+    }
+
     protected ResponseSpecification getResponseSpecification() {
         return responseSpecification;
     }
 
     public PathSpecification(String path) {
         this.path = path;
+        this.requestSpecification = new RequestSpecification(this);
         this.responseSpecification = new ResponseSpecification(this);
     }
 
     public PathSpecification(String path, PathSpecification previousPathSpecification) {
         this.path = path;
+        this.requestSpecification = new RequestSpecification(this);
         this.responseSpecification = new ResponseSpecification(this);
         this.previousPathSpecification = previousPathSpecification;
     }
@@ -38,6 +47,10 @@ public class PathSpecification {
 
     public PathSpecification serve(String path) {
         return new PathSpecification(path, this);
+    }
+
+    public RequestSpecification when() {
+        return requestSpecification;
     }
 
     public ResponseSpecification responding() {

@@ -1,5 +1,7 @@
 package com.mikecouturier.tews;
 
+// @todo, clean code
+
 import org.mortbay.jetty.Request;
 import org.mortbay.jetty.Response;
 
@@ -20,9 +22,20 @@ public class PathHandler implements Servlet {
         Response response = (Response)servletResponse;
         System.out.println(String.format("[TEWS] http://localhost:%d%s", request.getServerPort(), request.getRequestURI()));
 
-        // Ugly hack, mapping the root catch all URLs on server
-        // see "Default Mapping":
-        // http://account.pacip.com/jetty/doc/PathMapping.html
+        for (Map.Entry<String, String> header : pathSpecification.getRequestSpecification().getHeaders().entrySet()) {
+            if (!request.getHeader(header.getKey()).equals(header.getValue())) {
+                request.setHandled(false);
+                return;
+            }
+        }
+
+        if (pathSpecification.getRequestSpecification().getMethod() != null) {
+            if (!pathSpecification.getRequestSpecification().getMethod().equalsIgnoreCase(request.getMethod())) {
+                request.setHandled(false);
+                return;
+            }
+        }
+
         if (pathSpecification.getPath().equals("/") && !request.getRequestURI().equals("/")) {
             request.setHandled(false);
             return;

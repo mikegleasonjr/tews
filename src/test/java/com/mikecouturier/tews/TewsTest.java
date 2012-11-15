@@ -1,9 +1,14 @@
 package com.mikecouturier.tews;
 
+import com.mikecouturier.tews.util.PortFinder;
 import org.junit.After;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.jayway.restassured.RestAssured.expect;
+import static com.jayway.restassured.RestAssured.given;
 import static com.mikecouturier.tews.Tews.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -96,6 +101,13 @@ public class TewsTest {
     }
 
     @Test
+    public void servingAUrlOnACustomPortReturnsCode200() throws Exception {
+        serve("/").server(CUSTOM_PORT);
+
+        given().port(CUSTOM_PORT).expect().statusCode(200).when().get("/");
+    }
+
+    @Test
     public void aUrlDefaultContentTypeIsTextPlain() throws Exception {
         serve("/").server();
 
@@ -117,6 +129,15 @@ public class TewsTest {
         serve("/url").responding().body(data).server();
 
         expect().body(equalTo(data)).when().get("/url");
+    }
+
+    @Test
+    public void aUrlCanServeDataOnACustomPort() throws Exception {
+        String data = "data";
+
+        serve("/url").responding().body(data).server(CUSTOM_PORT);
+
+        given().port(CUSTOM_PORT).expect().body(equalTo(data)).when().get("/url");
     }
 
     @Test
@@ -164,6 +185,94 @@ public class TewsTest {
                 .when().get("/multiple-headers");
     }
 
+    @Test
+    public void headersServedCanBeSpecifiedFromAList() throws Exception {
+        Map<String, String> expectedHeaders = new HashMap<String, String>() {{
+            put("Date", "Tue, 15 Nov 1994 08:12:31 GMT");
+            put("Host", "localhost");
+            put("Pragma", "no-cache");
+            put("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:12.0) Gecko/20100101 Firefox/12.0");
+        }};
+
+        serve("/multiple-headers").responding()
+                .headers(expectedHeaders)
+                .server();
+
+        expect().headers(expectedHeaders)
+                .when().get("/multiple-headers");
+    }
+
+    @Test
+    public void aUrlCanServeOnlyASpecificMethod() throws Exception {
+        serve("/method/post").when().method("POST").server();
+
+        expect().statusCode(404).when().get("/method/post");
+        expect().statusCode(200).when().post("/method/post");
+    }
+
+    @Test
+    public void aUrlCanServeOnlyASpecificMethodOnACustomPort() throws Exception {
+        serve("/put").when().method("PUT").server(CUSTOM_PORT);
+
+        given().port(CUSTOM_PORT).expect().statusCode(200).when().put("/put");
+    }
+
+    @Test
+    public void aUrlCanServeOnlyASpecificMethodIrrespectiveOfTheCase() throws Exception {
+        serve("/method/post").when().method("pOst").server();
+
+        expect().statusCode(200).when().post("/method/post");
+    }
+
+    @Test
+    public void aUrlCanOnlyBeServedWhenTheClientSuppliedAParticularHeader() throws Exception {
+        String headerName = "Accept";
+        String headerValue = "application/json";
+
+        serve("/conditional/header").when().header(headerName, headerValue).server();
+
+        expect().statusCode(404).when().get("/conditional/header");
+        given().header(headerName, headerValue).expect().statusCode(200).when().get("/conditional/header");
+    }
+
+    @Test
+    public void aUrlCanOnlyBeServedWhenTheClientSuppliedMultipleRequestHeaders() throws Exception {
+        String headerName1 = "Accept";
+        String headerValue1 = "application/json";
+        String headerName2 = "Accept-Encoding";
+        String headerValue2 = "gzip, deflate";
+
+        serve("/multiple-conditional/headers").when()
+                .header(headerName1, headerValue1)
+                .header(headerName2, headerValue2)
+                .server();
+
+        expect().statusCode(404).when().get("/multiple-conditional/headers");
+        given().header(headerName1, headerValue1).header(headerName2, headerValue2).expect().statusCode(200).when().get("/multiple-conditional/headers");
+    }
+
+    @Test
+    public void aUrlCanOnlyBeServedWhenTheClientSuppliedMultipleRequestHeadersAsAList() throws Exception {
+        Map<String, String> suppliedHeaders = new HashMap<String, String>() {{
+            put("Accept", "application/json");
+            put("Accept-Encoding", "gzip, deflate");
+        }};
+
+        serve("/multiple-conditional/headers").when()
+                .headers(suppliedHeaders)
+                .server();
+
+        expect().statusCode(404).when().get("/multiple-conditional/headers");
+        given().headers(suppliedHeaders).expect().statusCode(200).when().get("/multiple-conditional/headers");
+    }
+
+    @Test
+    public void aRequestHeaderAndAResponseCanBothBeSpecifiedForAUrl() throws Exception {
+        serve("/both").when().method("put").responding().body("it works").server();
+
+        expect().statusCode(200).body(equalTo("it works")).when().put("/both");
+    }
+
     @After
     public void stopServers() throws Exception {
         stopAll();
@@ -174,17 +283,8 @@ public class TewsTest {
     }
 
     private void portInUse(int port) {
-        assertThat("The local port " + port + " is in use", !PortFinder.available(port), is(true));
+        assertThat("The local port " + port + " is in use", PortFinder.available(port), is(false));
     }
 
     private int CUSTOM_PORT = 8082;
-
-    /* example usage
-    serve("/test/1").when().header("", "").responding().code(500).
-    serve("/test/2").once().when().header("", "").responding().body("ERROR").
-    serve("/test/3").exactly(3).when().header("", "").responding().body("ERROR").
-    serve("/test/4").twice().when().header("", "no-cache").responding().contentType("application/json").body("{ "test": 3 }").
-    serve("/test/4").once().when().method(POST).header("accept", "text/html").responding().body("yo")
-            .server(8123);
-    */
 }
