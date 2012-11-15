@@ -1,4 +1,4 @@
-package com.mikecouturier.tews;
+package com.mikecouturier.tews.util;
 
 import java.io.IOException;
 import java.net.DatagramSocket;

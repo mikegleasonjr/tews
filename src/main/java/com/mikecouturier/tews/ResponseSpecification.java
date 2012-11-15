@@ -1,5 +1,7 @@
 package com.mikecouturier.tews;
 
+// @todo, clean code
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,6 +49,11 @@ public class ResponseSpecification {
 
     public ResponseSpecification header(String name, String value) {
         headers.put(name, value);
+        return this;
+    }
+
+    public ResponseSpecification headers(Map<String, String> headers) {
+        this.headers.putAll(headers);
         return this;
     }
 
