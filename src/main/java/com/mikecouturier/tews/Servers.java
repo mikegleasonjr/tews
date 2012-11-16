@@ -14,14 +14,14 @@ public class Servers {
         start(port, null);
     }
 
-    public static void start(int port, PathSpecification pathSpecification) throws Exception {
+    public static void start(int port, UrlSpecification urlSpecification) throws Exception {
         org.mortbay.jetty.Server server = new org.mortbay.jetty.Server(port);
 
         Context defaultContext = new Context(server, "/");
-        PathSpecification currentPathSpecification = pathSpecification;
-        while (currentPathSpecification != null) {
-            defaultContext.addServlet(new ServletHolder(new PathHandler(currentPathSpecification)), currentPathSpecification.getPath());
-            currentPathSpecification = currentPathSpecification.getPreviousPathSpecification();
+        UrlSpecification currentUrlSpecification = urlSpecification;
+        while (currentUrlSpecification != null) {
+            defaultContext.addServlet(new ServletHolder(new PathHandler(currentUrlSpecification)), currentUrlSpecification.getPath());
+            currentUrlSpecification = currentUrlSpecification.getPreviousUrlSpecification();
         }
 
         server.start();

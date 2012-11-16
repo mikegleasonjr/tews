@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class RequestSpecification {
-    private PathSpecification path;
+    private UrlSpecification url;
     private String method;
     private Map<String, String> headers = new HashMap<String, String>();
     private Map<String, String> parameters = new HashMap<String, String>();
@@ -23,8 +23,8 @@ public class RequestSpecification {
         return parameters;
     }
 
-    public RequestSpecification(PathSpecification path) {
-        this.path = path;
+    public RequestSpecification(UrlSpecification url) {
+        this.url = url;
     }
 
     public RequestSpecification method(String method) {
@@ -53,14 +53,14 @@ public class RequestSpecification {
     }
 
     public ResponseSpecification responding() {
-        return path.getResponseSpecification();
+        return url.getResponseSpecification();
     }
 
     public void server() throws Exception {
-        Servers.start(Tews.DEFAULT_PORT, path);
+        Servers.start(Tews.DEFAULT_PORT, url);
     }
 
     public void server(int port) throws Exception {
-        Servers.start(port, path);
+        Servers.start(port, url);
     }
 }
