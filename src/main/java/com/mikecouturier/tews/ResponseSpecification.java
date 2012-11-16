@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ResponseSpecification {
-    private PathSpecification path;
+    private UrlSpecification url;
     private String body;
     private String contentType = "text/plain";
     private int statusCode = 200;
@@ -28,8 +28,8 @@ public class ResponseSpecification {
         return headers;
     }
 
-    public ResponseSpecification(PathSpecification path) {
-        this.path = path;
+    public ResponseSpecification(UrlSpecification url) {
+        this.url = url;
     }
 
     public ResponseSpecification body(String body) {
@@ -58,10 +58,10 @@ public class ResponseSpecification {
     }
 
     public void server() throws Exception {
-        Servers.start(Tews.DEFAULT_PORT, path);
+        Servers.start(Tews.DEFAULT_PORT, url);
     }
 
     public void server(int port) throws Exception {
-        Servers.start(port, path);
+        Servers.start(port, url);
     }
 }

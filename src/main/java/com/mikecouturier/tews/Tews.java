@@ -1,5 +1,7 @@
 package com.mikecouturier.tews;
 
+import java.util.List;
+
 public class Tews {
     public static int DEFAULT_PORT = 8080;
 
@@ -9,6 +11,26 @@ public class Tews {
 
     public static void server(int port) throws Exception {
         Servers.start(port);
+    }
+
+    public static void server(UrlSpecification url) throws Exception {
+        url.server();
+    }
+
+    public static void server(UrlSpecification url, int port) throws Exception {
+        url.server(port);
+    }
+
+    public static void server(List<UrlSpecification> urls) throws Exception {
+        UrlSpecification previous = null;
+
+        for (int i = 0; i < urls.size(); i++) {
+            UrlSpecification url = urls.get(i);
+            url.setPreviousUrlSpecification(previous);
+            previous = url;
+        }
+
+        previous.server();
     }
 
     public static void stop() throws Exception {
@@ -23,7 +45,7 @@ public class Tews {
         Servers.stopAll();
     }
 
-    public static PathSpecification serve(String path) {
-        return new PathSpecification(path);
+    public static UrlSpecification serve(String path) {
+        return new UrlSpecification(path);
     }
 }

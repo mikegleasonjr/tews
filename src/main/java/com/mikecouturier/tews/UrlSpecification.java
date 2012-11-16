@@ -2,14 +2,14 @@ package com.mikecouturier.tews;
 
 // @todo, clean code
 
-public class PathSpecification {
+public class UrlSpecification {
     private String path;
     private ResponseSpecification responseSpecification;
     private RequestSpecification requestSpecification;
-    private PathSpecification previousPathSpecification = null;
+    private UrlSpecification previousUrlSpecification = null;
 
-    protected PathSpecification getPreviousPathSpecification() {
-        return previousPathSpecification;
+    protected UrlSpecification getPreviousUrlSpecification() {
+        return previousUrlSpecification;
     }
 
     protected String getPath() {
@@ -24,17 +24,21 @@ public class PathSpecification {
         return responseSpecification;
     }
 
-    public PathSpecification(String path) {
+    protected void setPreviousUrlSpecification(UrlSpecification url) {
+        this.previousUrlSpecification = url;
+    }
+
+    public UrlSpecification(String path) {
         this.path = path;
         this.requestSpecification = new RequestSpecification(this);
         this.responseSpecification = new ResponseSpecification(this);
     }
 
-    public PathSpecification(String path, PathSpecification previousPathSpecification) {
+    public UrlSpecification(String path, UrlSpecification previousUrlSpecification) {
         this.path = path;
         this.requestSpecification = new RequestSpecification(this);
         this.responseSpecification = new ResponseSpecification(this);
-        this.previousPathSpecification = previousPathSpecification;
+        this.previousUrlSpecification = previousUrlSpecification;
     }
 
     public void server() throws Exception {
@@ -45,8 +49,8 @@ public class PathSpecification {
         Servers.start(port, this);
     }
 
-    public PathSpecification serve(String path) {
-        return new PathSpecification(path, this);
+    public UrlSpecification serve(String path) {
+        return new UrlSpecification(path, this);
     }
 
     public RequestSpecification when() {

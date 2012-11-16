@@ -4,7 +4,9 @@ import com.mikecouturier.tews.util.PortFinder;
 import org.junit.After;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.expect;
@@ -313,6 +315,35 @@ public class TewsTest {
 
         expect().statusCode(404).when().get("/multiple-query/list");
         given().params(suppliedParams).expect().statusCode(200).when().get("/multiple-query/list");
+    }
+
+    @Test
+    public void aPathCanBeSpecifiedSeparatelyFromTheServer() throws Exception {
+        UrlSpecification url = serve("/previously-declared");
+        Tews.server(url);
+
+        expect().statusCode(200).when().get("/previously-declared");
+    }
+
+    @Test
+    public void aPathCanBeSpecifiedSeparatelyFromTheServerOnACustomPort() throws Exception {
+        UrlSpecification url = serve("/previously-declared");
+        Tews.server(url, CUSTOM_PORT);
+
+        given().port(CUSTOM_PORT).expect().statusCode(200).when().get("/previously-declared");
+    }
+
+    @Test
+    public void pathsCanBeSpecifiedSeparatelyFromTheServer() throws Exception {
+        List<UrlSpecification> urls = new ArrayList<UrlSpecification>() {{
+            add(serve("/previously-declared1"));
+            add(serve("/previously-declared2"));
+        }};
+
+        Tews.server(urls);
+
+        expect().statusCode(200).when().get("/previously-declared1");
+        expect().statusCode(200).when().get("/previously-declared2");
     }
 
    @After

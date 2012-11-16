@@ -10,10 +10,10 @@ import java.io.IOException;
 import java.util.Map;
 
 public class PathHandler implements Servlet {
-    private PathSpecification pathSpecification;
+    private UrlSpecification urlSpecification;
 
-    public PathHandler(PathSpecification pathSpecification) {
-        this.pathSpecification = pathSpecification;
+    public PathHandler(UrlSpecification urlSpecification) {
+        this.urlSpecification = urlSpecification;
     }
 
     @Override
@@ -23,45 +23,45 @@ public class PathHandler implements Servlet {
         System.out.println(String.format("[TEWS] http://localhost:%d%s", request.getServerPort(), request.getRequestURI()));
 
 
-        for (Map.Entry<String, String> parameter : pathSpecification.getRequestSpecification().getParameters().entrySet()) {
+        for (Map.Entry<String, String> parameter : urlSpecification.getRequestSpecification().getParameters().entrySet()) {
             if (!parameter.getValue().equals(request.getParameter(parameter.getKey()))) {
                request.setHandled(false);
                return;
            }
         }
 
-        for (Map.Entry<String, String> header : pathSpecification.getRequestSpecification().getHeaders().entrySet()) {
+        for (Map.Entry<String, String> header : urlSpecification.getRequestSpecification().getHeaders().entrySet()) {
             if (!request.getHeader(header.getKey()).equals(header.getValue())) {
                 request.setHandled(false);
                 return;
             }
         }
 
-        if (pathSpecification.getRequestSpecification().getMethod() != null) {
-            if (!pathSpecification.getRequestSpecification().getMethod().equalsIgnoreCase(request.getMethod())) {
+        if (urlSpecification.getRequestSpecification().getMethod() != null) {
+            if (!urlSpecification.getRequestSpecification().getMethod().equalsIgnoreCase(request.getMethod())) {
                 request.setHandled(false);
                 return;
             }
         }
 
-        if (pathSpecification.getPath().equals("/") && !request.getRequestURI().equals("/")) {
+        if (urlSpecification.getPath().equals("/") && !request.getRequestURI().equals("/")) {
             request.setHandled(false);
             return;
         }
 
-        if (pathSpecification.getResponseSpecification().getBody() != null) {
-            servletResponse.getWriter().write(pathSpecification.getResponseSpecification().getBody());
+        if (urlSpecification.getResponseSpecification().getBody() != null) {
+            servletResponse.getWriter().write(urlSpecification.getResponseSpecification().getBody());
         }
 
-        if (pathSpecification.getResponseSpecification().getContentType() != null) {
-            servletResponse.setContentType(pathSpecification.getResponseSpecification().getContentType());
+        if (urlSpecification.getResponseSpecification().getContentType() != null) {
+            servletResponse.setContentType(urlSpecification.getResponseSpecification().getContentType());
         }
 
-        for (Map.Entry<String, String> header : pathSpecification.getResponseSpecification().getHeaders().entrySet()) {
+        for (Map.Entry<String, String> header : urlSpecification.getResponseSpecification().getHeaders().entrySet()) {
             response.addHeader(header.getKey(), header.getValue());
         }
 
-        response.setStatus(pathSpecification.getResponseSpecification().getStatusCode());
+        response.setStatus(urlSpecification.getResponseSpecification().getStatusCode());
     }
 
     @Override
