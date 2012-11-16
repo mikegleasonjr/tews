@@ -22,6 +22,10 @@ public class Tews {
     }
 
     public static void server(List<UrlSpecification> urls) throws Exception {
+        server(urls, DEFAULT_PORT);
+    }
+
+    public static void server(List<UrlSpecification> urls, int port) throws Exception {
         UrlSpecification previous = null;
 
         for (int i = 0; i < urls.size(); i++) {
@@ -30,7 +34,7 @@ public class Tews {
             previous = url;
         }
 
-        previous.server();
+        previous.server(port);
     }
 
     public static void stop() throws Exception {

@@ -346,6 +346,19 @@ public class TewsTest {
         expect().statusCode(200).when().get("/previously-declared2");
     }
 
+    @Test
+    public void pathsCanBeSpecifiedSeparatelyFromTheServerOnACustomPort() throws Exception {
+        List<UrlSpecification> urls = new ArrayList<UrlSpecification>() {{
+            add(serve("/previously-declared1"));
+            add(serve("/previously-declared2"));
+        }};
+
+        Tews.server(urls, CUSTOM_PORT);
+
+        given().port(CUSTOM_PORT).expect().statusCode(200).when().get("/previously-declared1");
+        given().port(CUSTOM_PORT).expect().statusCode(200).when().get("/previously-declared2");
+    }
+
    @After
     public void stopServers() throws Exception {
         stopAll();
