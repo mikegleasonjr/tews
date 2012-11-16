@@ -22,6 +22,14 @@ public class PathHandler implements Servlet {
         Response response = (Response)servletResponse;
         System.out.println(String.format("[TEWS] http://localhost:%d%s", request.getServerPort(), request.getRequestURI()));
 
+
+        for (Map.Entry<String, String> parameter : pathSpecification.getRequestSpecification().getParameters().entrySet()) {
+            if (!parameter.getValue().equals(request.getParameter(parameter.getKey()))) {
+               request.setHandled(false);
+               return;
+           }
+        }
+
         for (Map.Entry<String, String> header : pathSpecification.getRequestSpecification().getHeaders().entrySet()) {
             if (!request.getHeader(header.getKey()).equals(header.getValue())) {
                 request.setHandled(false);

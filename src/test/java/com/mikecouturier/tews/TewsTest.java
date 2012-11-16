@@ -273,7 +273,49 @@ public class TewsTest {
         expect().statusCode(200).body(equalTo("it works")).when().put("/both");
     }
 
-    @After
+    @Test
+    public void aRequestIsServedWhenASpecificParameterIsExpected() throws Exception {
+        String paramName = "param1";
+        String paramValue = "value1";
+
+        serve("/query").when().param(paramName, paramValue).server();
+
+        expect().statusCode(404).when().get("/query");
+        given().param(paramName, paramValue).expect().statusCode(200).when().get("/query");
+    }
+
+    @Test
+    public void aRequestIsServedWhenSpecificParametersAreExpected() throws Exception {
+        String paramName1 = "param1";
+        String paramValue1 = "value1";
+        String paramName2 = "param2";
+        String paramValue2 = "value2";
+
+        serve("/multiple-query").when()
+            .param(paramName1, paramValue1)
+            .param(paramName2, paramValue2)
+            .server();
+
+        given().param(paramName2, paramValue2).expect().statusCode(404).when().get("/multiple-query");
+        given().param(paramName1, paramValue1).param(paramName2, paramValue2).expect().statusCode(200).when().get("/multiple-query");
+    }
+
+    @Test
+    public void aRequestIsServedWhenSpecificParametersAreExpectedFromList() throws Exception {
+        Map<String, String> suppliedParams = new HashMap<String, String>() {{
+            put("paramx", "some-value");
+            put("paramy", "other-value");
+        }};
+
+        serve("/multiple-query/list").when()
+            .params(suppliedParams)
+            .server();
+
+        expect().statusCode(404).when().get("/multiple-query/list");
+        given().params(suppliedParams).expect().statusCode(200).when().get("/multiple-query/list");
+    }
+
+   @After
     public void stopServers() throws Exception {
         stopAll();
     }
