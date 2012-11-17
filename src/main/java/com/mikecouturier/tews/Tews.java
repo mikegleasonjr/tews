@@ -14,11 +14,11 @@ public class Tews {
     }
 
     public static void server(UrlSpecification url) throws Exception {
-        url.server();
+        server(url, DEFAULT_PORT);
     }
 
     public static void server(UrlSpecification url, int port) throws Exception {
-        url.server(port);
+        Servers.start(url, port);
     }
 
     public static void server(List<UrlSpecification> urls) throws Exception {
@@ -26,15 +26,7 @@ public class Tews {
     }
 
     public static void server(List<UrlSpecification> urls, int port) throws Exception {
-        UrlSpecification previous = null;
-
-        for (int i = 0; i < urls.size(); i++) {
-            UrlSpecification url = urls.get(i);
-            url.setPreviousUrlSpecification(previous);
-            previous = url;
-        }
-
-        previous.server(port);
+        Servers.start(urls, port);
     }
 
     public static void stop() throws Exception {

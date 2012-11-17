@@ -58,10 +58,10 @@ public class ResponseSpecification {
     }
 
     public void server() throws Exception {
-        Servers.start(Tews.DEFAULT_PORT, url);
+        server(Tews.DEFAULT_PORT);
     }
 
     public void server(int port) throws Exception {
-        Servers.start(port, url);
+        Servers.start(url.getUrlSpecificationList(), port);
     }
 }
