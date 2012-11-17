@@ -11,17 +11,20 @@ public class Servers {
     private static Map<Integer, org.mortbay.jetty.Server> runningServers = new HashMap<Integer, org.mortbay.jetty.Server>();
 
     public static void start(int port) throws Exception {
-        start(port, null);
+        start(Collections.<UrlSpecification>emptyList(), port);
     }
 
-    public static void start(int port, UrlSpecification urlSpecification) throws Exception {
+    public static void start(UrlSpecification url, int port) throws Exception {
+        start(Arrays.asList(url), port);
+    }
+
+    public static void start(List<UrlSpecification> urlSpecificationList, int port) throws Exception {
         org.mortbay.jetty.Server server = new org.mortbay.jetty.Server(port);
 
         Context defaultContext = new Context(server, "/");
-        UrlSpecification currentUrlSpecification = urlSpecification;
-        while (currentUrlSpecification != null) {
-            defaultContext.addServlet(new ServletHolder(new PathHandler(currentUrlSpecification)), currentUrlSpecification.getPath());
-            currentUrlSpecification = currentUrlSpecification.getPreviousUrlSpecification();
+        for (int i = 0; i < urlSpecificationList.size(); i++) {
+            UrlSpecification url = urlSpecificationList.get(i);
+            defaultContext.addServlet(new ServletHolder(new PathHandler(url)), url.getPath());
         }
 
         server.start();
