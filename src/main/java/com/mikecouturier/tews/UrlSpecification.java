@@ -21,8 +21,8 @@ public class UrlSpecification extends UrlChain {
         super(urlSpecificationList);
 
         this.path = path;
-        this.requestSpecification = new RequestSpecification(urlSpecificationList);
         this.responseSpecification = new ResponseSpecification(urlSpecificationList);
+        this.requestSpecification = new RequestSpecification(urlSpecificationList, responseSpecification);
     }
 
     public RequestSpecification when() {
