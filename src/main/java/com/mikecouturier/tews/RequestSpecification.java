@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class RequestSpecification extends UrlChain {
+    private ResponseSpecification responseSpecification;
     private String method;
     private Map<String, String> headers = new HashMap<String, String>();
     private Map<String, String> parameters = new HashMap<String, String>();
@@ -20,8 +21,9 @@ public class RequestSpecification extends UrlChain {
         return parameters;
     }
 
-    public RequestSpecification(UrlSpecificationList specificationList) {
+    public RequestSpecification(UrlSpecificationList specificationList, ResponseSpecification responseSpecification) {
         super(specificationList);
+        this.responseSpecification = responseSpecification;
     }
 
     public RequestSpecification method(String method) {
@@ -50,6 +52,6 @@ public class RequestSpecification extends UrlChain {
     }
 
     public ResponseSpecification responding() {
-        return getUrlSpecificationList().getCurrentUrlSpecification().getResponseSpecification();
+        return responseSpecification;
     }
 }

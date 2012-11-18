@@ -3,10 +3,6 @@ package com.mikecouturier.tews;
 public class UrlChain {
     private UrlSpecificationList urlSpecificationList;
 
-    protected UrlSpecificationList getUrlSpecificationList() {
-        return urlSpecificationList;
-    }
-
     protected UrlChain(UrlSpecificationList urlSpecificationList) {
         this.urlSpecificationList = urlSpecificationList;
     }
