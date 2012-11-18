@@ -1,12 +1,11 @@
 package com.mikecouturier.tews;
 
-import com.mikecouturier.tews.util.PortFinder;
 import org.junit.After;
 import org.junit.Test;
 
-import java.util.ArrayList;
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.expect;
@@ -20,34 +19,34 @@ public class TewsTest {
 
     @Test
     public void localPortsUsedInTestsAreAvailable() throws Exception {
-        portAvailable(Tews.DEFAULT_PORT);
-        portAvailable(CUSTOM_PORT);
+        assertPortAvailable(Tews.DEFAULT_PORT);
+        assertPortAvailable(CUSTOM_PORT);
     }
 
     @Test
     public void serverStartsOnDefaultPort() throws Exception {
         server();
-        portInUse(Tews.DEFAULT_PORT);
+        assertPortInUse(Tews.DEFAULT_PORT);
     }
 
     @Test
     public void serverStops() throws Exception {
         server();
         stop();
-        portAvailable(Tews.DEFAULT_PORT);
+        assertPortAvailable(Tews.DEFAULT_PORT);
     }
 
     @Test
     public void serverStartsOnCustomPort() throws Exception {
         server(CUSTOM_PORT);
-        portInUse(CUSTOM_PORT);
+        assertPortInUse(CUSTOM_PORT);
     }
 
     @Test
     public void serverStopsFromCustomPort() throws Exception {
         server(CUSTOM_PORT);
         stop(CUSTOM_PORT);
-        portAvailable(CUSTOM_PORT);
+        assertPortAvailable(CUSTOM_PORT);
     }
 
     @Test
@@ -57,7 +56,7 @@ public class TewsTest {
 
         stop();
 
-        portInUse(CUSTOM_PORT);
+        assertPortInUse(CUSTOM_PORT);
     }
 
     @Test
@@ -67,8 +66,8 @@ public class TewsTest {
 
         stopAll();
 
-        portAvailable(Tews.DEFAULT_PORT);
-        portAvailable(CUSTOM_PORT);
+        assertPortAvailable(Tews.DEFAULT_PORT);
+        assertPortAvailable(CUSTOM_PORT);
     }
 
     @Test(expected = IllegalStateException.class)
@@ -131,6 +130,15 @@ public class TewsTest {
         serve("/url").responding().body(data).server();
 
         expect().body(equalTo(data)).when().get("/url");
+    }
+
+    @Test
+    public void canServeAnotherUrlAfterSpecifyingAResponse() throws Exception {
+        serve("/url").responding().body("")
+                .serve("/another").server();
+
+        expect().statusCode(200).when().get("/url");
+        expect().statusCode(200).when().get("/another");
     }
 
     @Test
@@ -210,6 +218,15 @@ public class TewsTest {
 
         expect().statusCode(404).when().get("/method/post");
         expect().statusCode(200).when().post("/method/post");
+    }
+
+    @Test
+    public void canServeAnotherUrlAfterSpecifyingARequestCondition() throws Exception {
+        serve("/url").when().method("GET")
+                .serve("/another").server();
+
+        expect().statusCode(200).when().get("/url");
+        expect().statusCode(200).when().get("/another");
     }
 
     @Test
@@ -294,9 +311,9 @@ public class TewsTest {
         String paramValue2 = "value2";
 
         serve("/multiple-query").when()
-            .param(paramName1, paramValue1)
-            .param(paramName2, paramValue2)
-            .server();
+                .param(paramName1, paramValue1)
+                .param(paramName2, paramValue2)
+                .server();
 
         given().param(paramName2, paramValue2).expect().statusCode(404).when().get("/multiple-query");
         given().param(paramName1, paramValue1).param(paramName2, paramValue2).expect().statusCode(200).when().get("/multiple-query");
@@ -310,8 +327,8 @@ public class TewsTest {
         }};
 
         serve("/multiple-query/list").when()
-            .params(suppliedParams)
-            .server();
+                .params(suppliedParams)
+                .server();
 
         expect().statusCode(404).when().get("/multiple-query/list");
         given().params(suppliedParams).expect().statusCode(200).when().get("/multiple-query/list");
@@ -319,57 +336,50 @@ public class TewsTest {
 
     @Test
     public void aPathCanBeSpecifiedSeparatelyFromTheServer() throws Exception {
-        UrlSpecification url = serve("/previously-declared");
-        Tews.server(url);
+        UrlChain chain = serve("/previously-declared1");
+        chain.serve("/previously-declared2").responding().body("hello");
+        chain.serve("/previously-declared3").when().method("POST");
+        chain.server();
 
-        expect().statusCode(200).when().get("/previously-declared");
+        expect().statusCode(200).when().get("/previously-declared1");
+        expect().body(equalTo("hello")).statusCode(200).when().get("/previously-declared2");
+        expect().statusCode(200).when().post("/previously-declared3");
     }
 
     @Test
     public void aPathCanBeSpecifiedSeparatelyFromTheServerOnACustomPort() throws Exception {
-        UrlSpecification url = serve("/previously-declared");
-        Tews.server(url, CUSTOM_PORT);
-
-        given().port(CUSTOM_PORT).expect().statusCode(200).when().get("/previously-declared");
-    }
-
-    @Test
-    public void pathsCanBeSpecifiedSeparatelyFromTheServer() throws Exception {
-        List<UrlSpecification> urls = new ArrayList<UrlSpecification>() {{
-            add(serve("/previously-declared1"));
-            add(serve("/previously-declared2"));
-        }};
-
-        Tews.server(urls);
-
-        expect().statusCode(200).when().get("/previously-declared1");
-        expect().statusCode(200).when().get("/previously-declared2");
-    }
-
-    @Test
-    public void pathsCanBeSpecifiedSeparatelyFromTheServerOnACustomPort() throws Exception {
-        List<UrlSpecification> urls = new ArrayList<UrlSpecification>() {{
-            add(serve("/previously-declared1"));
-            add(serve("/previously-declared2"));
-        }};
-
-        Tews.server(urls, CUSTOM_PORT);
+        UrlChain chain = serve("/previously-declared1");
+        chain.serve("/previously-declared2").responding().body("hello");
+        chain.serve("/previously-declared3").when().method("POST");
+        chain.server(CUSTOM_PORT);
 
         given().port(CUSTOM_PORT).expect().statusCode(200).when().get("/previously-declared1");
-        given().port(CUSTOM_PORT).expect().statusCode(200).when().get("/previously-declared2");
+        given().port(CUSTOM_PORT).expect().body(equalTo("hello")).statusCode(200).when().get("/previously-declared2");
+        given().port(CUSTOM_PORT).expect().statusCode(200).when().post("/previously-declared3");
     }
 
-   @After
+    @After
     public void stopServers() throws Exception {
         stopAll();
     }
 
-    private void portAvailable(int port) {
-        assertThat("The local port " + port + " is available", PortFinder.available(port), is(true));
+    private void assertPortAvailable(int port) {
+        assertThat("The local port " + port + " is available", isPortAvailable(port), is(true));
     }
 
-    private void portInUse(int port) {
-        assertThat("The local port " + port + " is in use", PortFinder.available(port), is(false));
+    private void assertPortInUse(int port) {
+        assertThat("The local port " + port + " is in use", !isPortAvailable(port), is(true));
+    }
+
+    private boolean isPortAvailable(int port) {
+        try {
+            ServerSocket serverSocket = new ServerSocket(port);
+            serverSocket.setReuseAddress(true);
+            serverSocket.close();
+            return true;
+        } catch (final IOException e) {
+            return false;
+        }
     }
 
     private int CUSTOM_PORT = 8082;

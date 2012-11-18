@@ -1,12 +1,9 @@
 package com.mikecouturier.tews;
 
-// @todo, clean code
-
 import java.util.HashMap;
 import java.util.Map;
 
-public class ResponseSpecification {
-    private UrlSpecification url;
+public class ResponseSpecification extends UrlChain {
     private String body;
     private String contentType = "text/plain";
     private int statusCode = 200;
@@ -28,8 +25,8 @@ public class ResponseSpecification {
         return headers;
     }
 
-    public ResponseSpecification(UrlSpecification url) {
-        this.url = url;
+    public ResponseSpecification(UrlSpecificationList urlSpecificationList) {
+        super(urlSpecificationList);
     }
 
     public ResponseSpecification body(String body) {
@@ -55,13 +52,5 @@ public class ResponseSpecification {
     public ResponseSpecification headers(Map<String, String> headers) {
         this.headers.putAll(headers);
         return this;
-    }
-
-    public void server() throws Exception {
-        server(Tews.DEFAULT_PORT);
-    }
-
-    public void server(int port) throws Exception {
-        Servers.start(url.getUrlSpecificationList(), port);
     }
 }
