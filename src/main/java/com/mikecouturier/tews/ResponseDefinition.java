@@ -3,7 +3,7 @@ package com.mikecouturier.tews;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ResponseSpecification extends UrlChain {
+public class ResponseDefinition extends Chain {
     private String body;
     private String contentType = "text/plain";
     private int statusCode = 200;
@@ -25,31 +25,31 @@ public class ResponseSpecification extends UrlChain {
         return headers;
     }
 
-    public ResponseSpecification(UrlSpecificationList urlSpecificationList) {
-        super(urlSpecificationList);
+    public ResponseDefinition(ChainMemory chainMemory) {
+        super(chainMemory);
     }
 
-    public ResponseSpecification body(String body) {
+    public ResponseDefinition body(String body) {
         this.body = body;
         return this;
     }
 
-    public ResponseSpecification contentType(String contentType) {
+    public ResponseDefinition contentType(String contentType) {
         this.contentType = contentType;
         return this;
     }
 
-    public ResponseSpecification statusCode(int statusCode) {
+    public ResponseDefinition statusCode(int statusCode) {
         this.statusCode = statusCode;
         return this;
     }
 
-    public ResponseSpecification header(String name, String value) {
+    public ResponseDefinition header(String name, String value) {
         headers.put(name, value);
         return this;
     }
 
-    public ResponseSpecification headers(Map<String, String> headers) {
+    public ResponseDefinition headers(Map<String, String> headers) {
         this.headers.putAll(headers);
         return this;
     }

@@ -336,7 +336,7 @@ public class TewsTest {
 
     @Test
     public void aPathCanBeSpecifiedSeparatelyFromTheServer() throws Exception {
-        UrlChain chain = serve("/previously-declared1");
+        Chain chain = serve("/previously-declared1");
         chain.serve("/previously-declared2").responding().body("hello");
         chain.serve("/previously-declared3").when().method("POST");
         chain.server();
@@ -348,7 +348,7 @@ public class TewsTest {
 
     @Test
     public void aPathCanBeSpecifiedSeparatelyFromTheServerOnACustomPort() throws Exception {
-        UrlChain chain = serve("/previously-declared1");
+        Chain chain = serve("/previously-declared1");
         chain.serve("/previously-declared2").responding().body("hello");
         chain.serve("/previously-declared3").when().method("POST");
         chain.server(CUSTOM_PORT);
