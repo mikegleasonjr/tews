@@ -1,6 +1,6 @@
 package com.mikecouturier.tews;
 
-// @todo, clean code
+// todo, clean code
 
 import org.mortbay.jetty.Request;
 import org.mortbay.jetty.Response;
@@ -10,58 +10,61 @@ import java.io.IOException;
 import java.util.Map;
 
 public class PathHandler implements Servlet {
-    private UrlSpecification urlSpecification;
+    private PathDefinition pathDefinition;
+    private RequestDefinition requestDefinition;
+    private ResponseDefinition responseDefinition;
 
-    public PathHandler(UrlSpecification urlSpecification) {
-        this.urlSpecification = urlSpecification;
+    public PathHandler(PathDefinition pathDefinition, RequestDefinition requestDefinition, ResponseDefinition responseDefinition) {
+        this.pathDefinition = pathDefinition;
+        this.requestDefinition = requestDefinition;
+        this.responseDefinition = responseDefinition;
     }
 
-    @Override
+   @Override
     public void service(ServletRequest servletRequest, ServletResponse servletResponse) throws ServletException, IOException {
         Request request = (Request)servletRequest;
         Response response = (Response)servletResponse;
         System.out.println(String.format("[TEWS] http://localhost:%d%s", request.getServerPort(), request.getRequestURI()));
 
-
-        for (Map.Entry<String, String> parameter : urlSpecification.getRequestSpecification().getParameters().entrySet()) {
+        for (Map.Entry<String, String> parameter : requestDefinition.getParameters().entrySet()) {
             if (!parameter.getValue().equals(request.getParameter(parameter.getKey()))) {
                request.setHandled(false);
                return;
            }
         }
 
-        for (Map.Entry<String, String> header : urlSpecification.getRequestSpecification().getHeaders().entrySet()) {
+        for (Map.Entry<String, String> header : requestDefinition.getHeaders().entrySet()) {
             if (!request.getHeader(header.getKey()).equals(header.getValue())) {
                 request.setHandled(false);
                 return;
             }
         }
 
-        if (urlSpecification.getRequestSpecification().getMethod() != null) {
-            if (!urlSpecification.getRequestSpecification().getMethod().equalsIgnoreCase(request.getMethod())) {
+        if (requestDefinition.getMethod() != null) {
+            if (!requestDefinition.getMethod().equalsIgnoreCase(request.getMethod())) {
                 request.setHandled(false);
                 return;
             }
         }
 
-        if (urlSpecification.getPath().equals("/") && !request.getRequestURI().equals("/")) {
+        if (pathDefinition.getPath().equals("/") && !request.getRequestURI().equals("/")) {
             request.setHandled(false);
             return;
         }
 
-        if (urlSpecification.getResponseSpecification().getBody() != null) {
-            servletResponse.getWriter().write(urlSpecification.getResponseSpecification().getBody());
+        if (responseDefinition.getBody() != null) {
+            servletResponse.getWriter().write(responseDefinition.getBody());
         }
 
-        if (urlSpecification.getResponseSpecification().getContentType() != null) {
-            servletResponse.setContentType(urlSpecification.getResponseSpecification().getContentType());
+        if (responseDefinition.getContentType() != null) {
+            servletResponse.setContentType(responseDefinition.getContentType());
         }
 
-        for (Map.Entry<String, String> header : urlSpecification.getResponseSpecification().getHeaders().entrySet()) {
+        for (Map.Entry<String, String> header : responseDefinition.getHeaders().entrySet()) {
             response.addHeader(header.getKey(), header.getValue());
         }
 
-        response.setStatus(urlSpecification.getResponseSpecification().getStatusCode());
+        response.setStatus(responseDefinition.getStatusCode());
     }
 
     @Override

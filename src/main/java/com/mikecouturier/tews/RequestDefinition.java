@@ -3,8 +3,7 @@ package com.mikecouturier.tews;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RequestSpecification extends UrlChain {
-    private ResponseSpecification responseSpecification;
+public class RequestDefinition extends Chain {
     private String method;
     private Map<String, String> headers = new HashMap<String, String>();
     private Map<String, String> parameters = new HashMap<String, String>();
@@ -21,37 +20,36 @@ public class RequestSpecification extends UrlChain {
         return parameters;
     }
 
-    public RequestSpecification(UrlSpecificationList specificationList, ResponseSpecification responseSpecification) {
-        super(specificationList);
-        this.responseSpecification = responseSpecification;
+    public RequestDefinition(ChainMemory chainMemory) {
+        super(chainMemory);
     }
 
-    public RequestSpecification method(String method) {
+    public RequestDefinition method(String method) {
         this.method = method;
         return this;
     }
 
-    public RequestSpecification header(String name, String value) {
+    public RequestDefinition header(String name, String value) {
         headers.put(name, value);
         return this;
     }
 
-    public RequestSpecification headers(Map<String, String> headers) {
+    public RequestDefinition headers(Map<String, String> headers) {
         this.headers.putAll(headers);
         return this;
     }
 
-    public RequestSpecification param(String name, String value) {
+    public RequestDefinition param(String name, String value) {
         parameters.put(name, value);
         return this;
     }
 
-    public RequestSpecification params(Map<String, String> parameters) {
+    public RequestDefinition params(Map<String, String> parameters) {
         this.parameters.putAll(parameters);
         return this;
     }
 
-    public ResponseSpecification responding() {
-        return responseSpecification;
+    public ResponseDefinition responding() {
+        return getCurrentResponseDefinition();
     }
 }

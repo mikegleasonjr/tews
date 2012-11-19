@@ -23,7 +23,7 @@ public class Tews {
         Servers.stopAll();
     }
 
-    public static UrlSpecification serve(String path) {
-        return new UrlSpecificationList().createNextUrlSpecification(path);
+    public static PathDefinition serve(String path) {
+        return new ChainMemory().advanceChain(path).getPathDefinition();
     }
 }
