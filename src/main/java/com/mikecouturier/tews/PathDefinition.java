@@ -1,5 +1,7 @@
 package com.mikecouturier.tews;
 
+import org.mortbay.jetty.Request;
+
 public class PathDefinition extends Chain {
     private String path;
 
@@ -19,5 +21,9 @@ public class PathDefinition extends Chain {
 
     public ResponseDefinition responding() {
         return getCurrentResponseDefinition();
+    }
+
+    protected boolean match(Request request) {
+        return !(path.equals("/") && !request.getRequestURI().equals("/"));
     }
 }
