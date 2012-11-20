@@ -42,18 +42,31 @@ public class ResponseDefinition extends Chain {
     }
 
     protected void fill(Response response) throws IOException {
+        writeBody(response);
+        writeContentType(response);
+        writeHeaders(response);
+        writeStatusCode(response);
+    }
+
+    private void writeBody(Response response) throws IOException {
         if (this.body != null) {
             response.getWriter().write(body);
         }
+    }
 
+    private void writeContentType(Response response) {
         if (contentType != null) {
             response.setContentType(contentType);
         }
+    }
 
+    private void writeHeaders(Response response) {
         for (Map.Entry<String, String> header : headers.entrySet()) {
             response.addHeader(header.getKey(), header.getValue());
         }
+    }
 
+    private void writeStatusCode(Response response) {
         response.setStatus(statusCode);
     }
 }

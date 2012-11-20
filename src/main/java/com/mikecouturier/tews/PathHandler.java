@@ -24,7 +24,7 @@ public class PathHandler implements Servlet {
         Request request = (Request) servletRequest;
         Response response = (Response) servletResponse;
 
-        logRequest(request);
+        log(request);
 
         if (!pathDefinition.match(request) || !requestDefinition.match(request)) {
             request.setHandled(false);
@@ -33,7 +33,7 @@ public class PathHandler implements Servlet {
         }
     }
 
-    private void logRequest(Request request) {
+    private void log(Request request) {
         System.out.println(String.format("[TEWS] http://localhost:%d%s", request.getServerPort(), request.getRequestURI()));
     }
 
