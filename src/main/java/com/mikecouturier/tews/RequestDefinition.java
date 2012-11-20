@@ -44,24 +44,28 @@ public class RequestDefinition extends Chain {
     }
 
     protected boolean match(Request request) {
+        return matchParameters(request) && matchHeaders(request) && matchMethod(request);
+    }
+
+    private boolean matchParameters(Request request) {
         for (Map.Entry<String, String> parameter : this.parameters.entrySet()) {
             if (!parameter.getValue().equals(request.getParameter(parameter.getKey()))) {
                 return false;
             }
         }
+        return true;
+    }
 
+    private boolean matchHeaders(Request request) {
         for (Map.Entry<String, String> header : this.headers.entrySet()) {
             if (!request.getHeader(header.getKey()).equals(header.getValue())) {
                 return false;
             }
         }
-
-        if (method != null) {
-            if (!method.equalsIgnoreCase(request.getMethod())) {
-                return false;
-            }
-        }
-
         return true;
+    }
+
+    private boolean matchMethod(Request request) {
+        return  method == null || method.equalsIgnoreCase(request.getMethod());
     }
 }

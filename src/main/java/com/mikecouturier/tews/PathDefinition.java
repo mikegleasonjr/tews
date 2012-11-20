@@ -24,6 +24,14 @@ public class PathDefinition extends Chain {
     }
 
     protected boolean match(Request request) {
-        return !(path.equals("/") && !request.getRequestURI().equals("/"));
+        return !(pathIsRoot() && requestNotRoot(request));
+    }
+
+    private boolean requestNotRoot(Request request) {
+        return !request.getRequestURI().equals("/");
+    }
+
+    private boolean pathIsRoot() {
+        return path.equals("/");
     }
 }

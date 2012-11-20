@@ -12,9 +12,7 @@ public class ChainMemory {
 
     public ChainLink advanceChain(String path) {
         ChainLink link = new ChainLink(this, path);
-
         chainLinks.add(link);
-
         return link;
     }
 

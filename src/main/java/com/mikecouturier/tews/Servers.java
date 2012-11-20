@@ -2,6 +2,7 @@ package com.mikecouturier.tews;
 
 // todo, clean code
 
+import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
 
@@ -16,16 +17,20 @@ public class Servers {
 
     public static void start(ChainMemory chainMemory, int port) throws Exception {
         org.mortbay.jetty.Server server = new org.mortbay.jetty.Server(port);
-        List<ChainLink> chainLinks = chainMemory.getList();
 
-        Context defaultContext = new Context(server, "/");
-        for (int i = 0; i < chainLinks.size(); i++) {
-            ChainLink chainLink = chainLinks.get(i);
-            defaultContext.addServlet(new ServletHolder(new PathHandler(chainLink.getPathDefinition(), chainLink.getRequestDefinition(), chainLink.getResponseDefinition())), chainLink.getPathDefinition().getPath());
-        }
+        serveUrls(server, chainMemory);
 
         server.start();
         runningServers.put(port, server);
+    }
+
+    private static void serveUrls(Server server, ChainMemory chainMemory) {
+        Context defaultContext = new Context(server, "/");
+
+        for (Iterator<ChainLink> it = chainMemory.getList().iterator(); it.hasNext(); ) {
+            ChainLink link = it.next();
+            defaultContext.addServlet(new ServletHolder(new PathHandler(link.getPathDefinition(), link.getRequestDefinition(), link.getResponseDefinition())), link.getPathDefinition().getPath());
+        }
     }
 
     public static void stop(int port) throws Exception {
